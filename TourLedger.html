@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TourLedger — Tour Expense Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --ink: #1a1208;
+  --ink-2: #3d3120;
+  --ink-3: #6b5c42;
+  --ink-4: #a89278;
+  --paper: #faf7f2;
+  --paper-2: #f3ede3;
+  --paper-3: #e8dfd0;
+  --paper-4: #ddd0bc;
+  --gold: #b8913a;
+  --gold-light: #d4a84b;
+  --gold-pale: #f5e6c0;
+  --red: #8b2e2e;
+  --red-pale: #f5e0e0;
+  --green: #2e6b3e;
+  --green-pale: #dff0e4;
+  --blue: #2c4a7a;
+  --blue-pale: #e0e9f5;
+  --shadow-sm: 0 1px 3px rgba(26,18,8,0.12);
+  --shadow-md: 0 4px 16px rgba(26,18,8,0.12);
+  --shadow-lg: 0 8px 32px rgba(26,18,8,0.16);
+  --border: 1px solid var(--paper-4);
+  --radius: 4px;
+  --radius-lg: 8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--paper);
+  color:var(--ink);
+  min-height:100vh;
+  font-size:14px;
+  line-height:1.6;
+}
+
+/* ── HEADER ── */
+header{
+  background:var(--ink);
+  color:var(--paper);
+  padding:0 2rem;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  height:64px;
+  position:sticky;top:0;z-index:100;
+  border-bottom:2px solid var(--gold);
+}
+.logo{
+  font-family:'Playfair Display',serif;
+  font-size:22px;
+  font-weight:700;
+  letter-spacing:0.02em;
+  color:var(--paper);
+  display:flex;align-items:center;gap:10px;
+}
+.logo span{color:var(--gold-light)}
+.logo small{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink-4);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-top:-4px}
+.header-actions{display:flex;gap:8px;align-items:center}
+.btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.2);color:var(--paper);padding:6px 14px;border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:6px}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ── METRICS BAR ── */
+.metrics-bar{
+  background:var(--ink-2);
+  padding:1rem 2rem;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:1px;
+  border-bottom:1px solid var(--paper-3);
+}
+.metric-item{
+  padding:0.75rem 1.5rem;
+  text-align:center;
+  border-right:1px solid rgba(255,255,255,0.08);
+}
+.metric-item:last-child{border-right:none}
+.metric-label{font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink-4);margin-bottom:4px;font-family:'DM Mono',monospace}
+.metric-value{font-family:'Playfair Display',serif;font-size:24px;font-weight:600;color:var(--paper)}
+.metric-value.green{color:#7ecf95}
+.metric-value.red{color:#e0807a}
+.metric-value.gold{color:var(--gold-light)}
+
+/* ── LAYOUT ── */
+.layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 120px)}
+
+/* ── SIDEBAR NAV ── */
+.sidebar{
+  background:var(--paper-2);
+  border-right:var(--border);
+  padding:1.5rem 0;
+  position:sticky;top:120px;height:fit-content;
+}
+.nav-section{margin-bottom:1.5rem}
+.nav-label{font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink-4);padding:0 1.25rem;margin-bottom:0.5rem;font-family:'DM Mono',monospace}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 1.25rem;
+  cursor:pointer;
+  font-size:13px;
+  color:var(--ink-3);
+  transition:all 0.15s;
+  border-left:3px solid transparent;
+  font-weight:400;
+  position:relative;
+}
+.nav-item:hover{background:var(--paper-3);color:var(--ink)}
+.nav-item.active{background:var(--gold-pale);color:var(--ink);border-left-color:var(--gold);font-weight:500}
+.nav-item .icon{width:16px;text-align:center;font-size:15px;opacity:0.7}
+.nav-badge{
+  margin-left:auto;
+  background:var(--gold);
+  color:var(--ink);
+  font-size:10px;
+  font-family:'DM Mono',monospace;
+  padding:1px 6px;
+  border-radius:10px;
+  font-weight:500;
+}
+.sidebar-footer{
+  padding:1.25rem;
+  border-top:var(--border);
+  margin-top:1rem;
+}
+.tour-name-wrap{
+  background:var(--paper-3);
+  border:var(--border);
+  border-radius:var(--radius);
+  padding:0.75rem;
+}
+.tour-name-label{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-4);margin-bottom:4px;font-family:'DM Mono',monospace}
+.tour-name-input{
+  background:transparent;
+  border:none;
+  font-family:'Playfair Display',serif;
+  font-size:14px;
+  color:var(--ink);
+  width:100%;
+  outline:none;
+}
+
+/* ── MAIN ── */
+.main{padding:2rem;background:var(--paper)}
+.page{display:none}
+.page.active{display:block}
+
+/* ── PAGE HEADER ── */
+.page-header{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  margin-bottom:1.5rem;
+  padding-bottom:1rem;
+  border-bottom:1px solid var(--paper-3);
+}
+.page-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:600;color:var(--ink)}
+.page-subtitle{font-size:12px;color:var(--ink-4);margin-top:2px}
+.page-actions{display:flex;gap:8px}
+
+/* ── BUTTONS ── */
+.btn{
+  padding:8px 18px;font-size:13px;font-weight:500;
+  border-radius:var(--radius);cursor:pointer;
+  transition:all 0.15s;display:inline-flex;align-items:center;gap:6px;
+  font-family:'DM Sans',sans-serif;
+}
+.btn-primary{background:var(--ink);color:var(--paper);border:1px solid var(--ink)}
+.btn-primary:hover{background:var(--ink-2)}
+.btn-gold{background:var(--gold);color:var(--ink);border:1px solid var(--gold);font-weight:600}
+.btn-gold:hover{background:var(--gold-light)}
+.btn-outline{background:transparent;color:var(--ink-2);border:1px solid var(--paper-4)}
+.btn-outline:hover{border-color:var(--ink-3);background:var(--paper-2)}
+.btn-danger{background:transparent;color:var(--red);border:1px solid var(--red-pale)}
+.btn-danger:hover{background:var(--red-pale)}
+.btn-sm{padding:5px 12px;font-size:12px}
+.btn-xs{padding:3px 8px;font-size:11px}
+
+/* ── CARD ── */
+.card{
+  background:#fff;
+  border:var(--border);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-sm);
+  overflow:hidden;
+  margin-bottom:1.25rem;
+}
+.card-header{
+  padding:1rem 1.25rem;
+  border-bottom:var(--border);
+  background:var(--paper-2);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.card-title{font-size:13px;font-weight:500;color:var(--ink);display:flex;align-items:center;gap:8px}
+.card-body{padding:1.25rem}
+
+/* ── FORM ── */
+.form-grid{display:grid;gap:12px}
+.form-row{display:grid;gap:12px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-label{font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-3);font-weight:500;font-family:'DM Mono',monospace}
+.form-input,.form-select,.form-textarea{
+  padding:8px 12px;
+  border:1px solid var(--paper-4);
+  border-radius:var(--radius);
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'DM Sans',sans-serif;
+  font-size:13px;
+  transition:border-color 0.15s;
+  outline:none;
+}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,145,58,0.12)}
+.form-select{cursor:pointer}
+.form-hint{font-size:11px;color:var(--ink-4);margin-top:2px}
+
+/* ── TABLE ── */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead{background:var(--paper-2)}
+th{
+  padding:9px 12px;
+  text-align:left;
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:0.1em;
+  color:var(--ink-4);
+  font-weight:500;
+  font-family:'DM Mono',monospace;
+  border-bottom:1px solid var(--paper-4);
+  white-space:nowrap;
+}
+td{
+  padding:10px 12px;
+  border-bottom:1px solid var(--paper-3);
+  font-size:13px;
+  color:var(--ink);
+  vertical-align:middle;
+}
+tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--paper);transition:background 0.1s}
+.table-empty{text-align:center;padding:2.5rem;color:var(--ink-4);font-size:13px;font-style:italic}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:500;font-family:'DM Mono',monospace;white-space:nowrap}
+.badge-green{background:var(--green-pale);color:var(--green)}
+.badge-red{background:var(--red-pale);color:var(--red)}
+.badge-gold{background:var(--gold-pale);color:var(--gold)}
+.badge-blue{background:var(--blue-pale);color:var(--blue)}
+.badge-gray{background:var(--paper-3);color:var(--ink-3)}
+
+/* ── CHIPS ── */
+.chips-wrap{display:flex;flex-wrap:wrap;gap:6px;padding:8px 0}
+.chip{
+  padding:4px 12px;border-radius:20px;
+  border:1px solid var(--paper-4);
+  font-size:12px;color:var(--ink-3);
+  cursor:pointer;transition:all 0.15s;
+  user-select:none;
+}
+.chip:hover{border-color:var(--ink-3);color:var(--ink)}
+.chip.selected{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+/* ── ALERT ── */
+.alert{padding:12px 16px;border-radius:var(--radius);font-size:13px;margin-bottom:1rem;display:flex;gap:10px;align-items:flex-start;border-left:3px solid}
+.alert-success{background:var(--green-pale);border-color:var(--green);color:var(--green)}
+.alert-warning{background:var(--gold-pale);border-color:var(--gold);color:#7a5c1a}
+.alert-danger{background:var(--red-pale);border-color:var(--red);color:var(--red)}
+.alert-info{background:var(--blue-pale);border-color:var(--blue);color:var(--blue)}
+
+/* ── SETTLE ── */
+.settle-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem}
+.settle-card{
+  background:#fff;border:var(--border);border-radius:var(--radius-lg);padding:1.25rem;box-shadow:var(--shadow-sm);
+}
+.settle-card h3{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:var(--ink);margin-bottom:0.75rem;padding-bottom:0.5rem;border-bottom:1px solid var(--paper-3)}
+.transfer-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;
+  border:1px solid var(--paper-3);
+  border-radius:var(--radius);
+  margin-bottom:8px;
+  background:var(--paper);
+  gap:8px;
+}
+.transfer-arrow{color:var(--ink-4);font-size:16px}
+.transfer-amount{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--ink);background:var(--gold-pale);padding:3px 10px;border-radius:3px}
+
+/* ── MISC ── */
+.divider{height:1px;background:var(--paper-3);margin:1rem 0}
+.text-muted{color:var(--ink-4)}
+.text-mono{font-family:'DM Mono',monospace}
+.text-serif{font-family:'Playfair Display',serif}
+.member-avatar{
+  width:30px;height:30px;border-radius:50%;
+  background:var(--ink);color:var(--paper);
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:500;flex-shrink:0;
+}
+.section-divider{font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink-4);font-family:'DM Mono',monospace;padding:0.5rem 0;margin:0.75rem 0;border-top:1px dashed var(--paper-4)}
+.print-only{display:none}
+@media print{
+  .print-only{display:block}
+  header,.sidebar,.header-actions,.page-actions,.btn,.nav-item{display:none!important}
+  .layout{grid-template-columns:1fr}
+  .page{display:block!important}
+}
+@media(max-width:768px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .metrics-bar{grid-template-columns:repeat(2,1fr)}
+  .settle-grid{grid-template-columns:1fr}
+  header{padding:0 1rem}
+  .main{padding:1rem}
+}
+.fade-in{animation:fadeIn 0.2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.ledger-rule{
+  background:repeating-linear-gradient(transparent,transparent 27px,var(--paper-3) 27px,var(--paper-3) 28px);
+  padding:4px 0;
+}
+.watermark{
+  position:fixed;bottom:1rem;right:1rem;
+  font-family:'DM Mono',monospace;font-size:10px;
+  color:var(--paper-4);letter-spacing:0.08em;
+  pointer-events:none;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <rect x="3" y="2" width="14" height="20" rx="2" fill="#b8913a" opacity="0.3"/>
+      <rect x="5" y="2" width="14" height="20" rx="2" fill="#b8913a" opacity="0.5"/>
+      <rect x="7" y="2" width="14" height="20" rx="2" fill="#b8913a"/>
+      <line x1="10" y1="8" x2="18" y2="8" stroke="#1a1208" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="10" y1="12" x2="18" y2="12" stroke="#1a1208" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="10" y1="16" x2="15" y2="16" stroke="#1a1208" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <div>Tour<span>Ledger</span><small>Expense Calculator</small></div>
+  </div>
+  <div class="header-actions">
+    <button class="btn-ghost" onclick="exportJSON()">⬇ Export</button>
+    <button class="btn-ghost" onclick="importJSON()">⬆ Import</button>
+    <button class="btn-ghost" onclick="printReport()">🖨 Print Report</button>
+    <button class="btn-ghost" onclick="clearAll()" style="border-color:rgba(200,100,100,0.3);color:#e0807a">✕ Reset</button>
+  </div>
+</header>
+
+<div class="metrics-bar">
+  <div class="metric-item">
+    <div class="metric-label">Members</div>
+    <div class="metric-value gold" id="m-total">0</div>
+  </div>
+  <div class="metric-item">
+    <div class="metric-label">Fund Collected</div>
+    <div class="metric-value" id="m-collected" style="color:#faf7f2">৳0</div>
+  </div>
+  <div class="metric-item">
+    <div class="metric-label">Total Spent</div>
+    <div class="metric-value" id="m-spent" style="color:#faf7f2">৳0</div>
+  </div>
+  <div class="metric-item">
+    <div class="metric-label">Balance</div>
+    <div class="metric-value" id="m-balance">৳0</div>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="nav-section">
+      <div class="nav-label">Management</div>
+      <div class="nav-item active" onclick="showPage('members',this)">
+        <span class="icon">👥</span> Members
+        <span class="nav-badge" id="nb-members">0</span>
+      </div>
+      <div class="nav-item" onclick="showPage('fund',this)">
+        <span class="icon">💰</span> Central Fund
+        <span class="nav-badge" id="nb-contribs">0</span>
+      </div>
+      <div class="nav-item" onclick="showPage('expenses',this)">
+        <span class="icon">🧾</span> Expenses
+        <span class="nav-badge" id="nb-expenses">0</span>
+      </div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Reports</div>
+      <div class="nav-item" onclick="showPage('settle',this)">
+        <span class="icon">⚖️</span> Settlement
+      </div>
+      <div class="nav-item" onclick="showPage('ledger',this)">
+        <span class="icon">📋</span> Full Ledger
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="tour-name-wrap">
+        <div class="tour-name-label">Tour Name</div>
+        <input class="tour-name-input" id="tour-name" placeholder="Cox's Bazar 2025" value="My Tour" oninput="saveTourName()"/>
+      </div>
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <!-- MEMBERS PAGE -->
+    <div id="page-members" class="page active fade-in">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Members</div>
+          <div class="page-subtitle">Add and manage up to 250 tour participants</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">✚ Add New Member</div>
+        </div>
+        <div class="card-body">
+          <div class="form-row" style="grid-template-columns:1fr 100px 120px auto">
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input class="form-input" id="m-name" placeholder="e.g. Rahim Uddin" maxlength="50" onkeypress="if(event.key==='Enter')addMember()"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">ID / Roll</label>
+              <input class="form-input" id="m-roll" placeholder="001"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone (opt)</label>
+              <input class="form-input" id="m-phone" placeholder="017XXXXXXXX"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">&nbsp;</label>
+              <button class="btn btn-gold" onclick="addMember()">Add Member</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📋 Member Roster</div>
+          <div style="display:flex;gap:8px">
+            <input class="form-input" id="member-search" placeholder="Search…" style="width:180px;padding:5px 10px;font-size:12px" oninput="filterMembers()"/>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Roll</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Contributed</th>
+                <th>Share Spent</th>
+                <th>Net Balance</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="member-tbody">
+              <tr><td colspan="8" class="table-empty">No members yet. Add your first member above.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- FUND PAGE -->
+    <div id="page-fund" class="page fade-in">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Central Fund</div>
+          <div class="page-subtitle">Record money collected from each member into the central account</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">✚ Record Contribution</div></div>
+        <div class="card-body">
+          <div class="form-row" style="grid-template-columns:1fr 150px 150px auto">
+            <div class="form-group">
+              <label class="form-label">Member</label>
+              <select class="form-select" id="f-member">
+                <option value="">— Select member —</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Amount (৳)</label>
+              <input class="form-input" id="f-amount" type="number" min="0" step="1" placeholder="500" onkeypress="if(event.key==='Enter')addContrib()"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Note (opt)</label>
+              <input class="form-input" id="f-note" placeholder="e.g. 1st installment"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">&nbsp;</label>
+              <button class="btn btn-gold" onclick="addContrib()">Record</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">💰 Contribution Log</div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Member</th><th>Amount</th><th>Note</th><th>Time</th><th></th></tr></thead>
+            <tbody id="contrib-tbody">
+              <tr><td colspan="5" class="table-empty">No contributions recorded yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXPENSES PAGE -->
+    <div id="page-expenses" class="page fade-in">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Expenses</div>
+          <div class="page-subtitle">Log all tour expenses — full group or vehicle/subgroup splits</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">✚ Add Expense</div></div>
+        <div class="card-body">
+          <div class="form-row" style="grid-template-columns:1fr 140px 140px 140px">
+            <div class="form-group">
+              <label class="form-label">Description</label>
+              <input class="form-input" id="e-desc" placeholder="e.g. CNG from station to hotel"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Category</label>
+              <select class="form-select" id="e-category">
+                <option value="transport">🚌 Transport</option>
+                <option value="food">🍽 Food</option>
+                <option value="hotel">🏨 Hotel</option>
+                <option value="ticket">🎟 Entry/Ticket</option>
+                <option value="misc">📦 Miscellaneous</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Total Cost (৳)</label>
+              <input class="form-input" id="e-cost" type="number" min="0" step="1" placeholder="1200"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Split Type</label>
+              <select class="form-select" id="e-type" onchange="toggleSplitType()">
+                <option value="all">Whole Group</option>
+                <option value="sub">Vehicle / Subgroup</option>
+              </select>
+            </div>
+          </div>
+          <div id="subgroup-section" style="display:none;margin-top:1rem">
+            <div class="form-row" style="grid-template-columns:200px 1fr">
+              <div class="form-group">
+                <label class="form-label">Vehicle / Group Label</label>
+                <input class="form-input" id="e-vehicle" placeholder="CNG-1, Bus-2 …"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Select Members in this Vehicle</label>
+                <div class="chips-wrap" id="expense-chips">
+                  <span style="font-size:12px;color:var(--ink-4);font-style:italic">Add members first</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:1rem;display:flex;justify-content:flex-end">
+            <button class="btn btn-gold" onclick="addExpense()">Add Expense</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">🧾 Expense Log</div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Description</th><th>Category</th><th>Split</th><th>Total</th><th>Per Head</th><th>Members</th><th></th></tr></thead>
+            <tbody id="expense-tbody">
+              <tr><td colspan="8" class="table-empty">No expenses added yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTLE PAGE -->
+    <div id="page-settle" class="page fade-in">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Settlement</div>
+          <div class="page-subtitle">Final calculation — who gets money back, who pays more</div>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-outline btn-sm" onclick="printReport()">🖨 Print</button>
+        </div>
+      </div>
+      <div id="settle-content">
+        <div class="alert alert-info">Add members, record contributions, and log expenses to generate the settlement report.</div>
+      </div>
+    </div>
+
+    <!-- LEDGER PAGE -->
+    <div id="page-ledger" class="page fade-in">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Full Ledger</div>
+          <div class="page-subtitle">Complete financial record of the tour</div>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-outline btn-sm" onclick="printReport()">🖨 Print</button>
+        </div>
+      </div>
+      <div id="ledger-content"></div>
+    </div>
+
+  </main>
+</div>
+
+<div class="watermark">TourLedger v1.0</div>
+
+<input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)"/>
+
+<script>
+// ── STATE ──
+let members=[], contributions=[], expenses=[], selectedChips=new Set();
+
+// ── PERSISTENCE ──
+function save(){
+  localStorage.setItem('tl_members',JSON.stringify(members));
+  localStorage.setItem('tl_contribs',JSON.stringify(contributions));
+  localStorage.setItem('tl_expenses',JSON.stringify(expenses));
+  localStorage.setItem('tl_tourname',document.getElementById('tour-name').value);
+}
+function load(){
+  try{
+    members=JSON.parse(localStorage.getItem('tl_members')||'[]');
+    contributions=JSON.parse(localStorage.getItem('tl_contribs')||'[]');
+    expenses=JSON.parse(localStorage.getItem('tl_expenses')||'[]');
+    const tn=localStorage.getItem('tl_tourname');
+    if(tn)document.getElementById('tour-name').value=tn;
+  }catch(e){members=[];contributions=[];expenses=[]}
+}
+function saveTourName(){save()}
+
+// ── UTILS ──
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function fmt(n){return '৳'+Math.round(n).toLocaleString('en-IN')}
+function fmtDec(n){return '৳'+(Math.round(n*100)/100).toLocaleString('en-IN',{minimumFractionDigits:0,maximumFractionDigits:2})}
+function initials(name){return name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase()}
+function avatarColor(name){
+  const colors=['#2c4a7a','#2e6b3e','#7a3030','#5a3070','#6b5c20','#1a5c5c'];
+  return colors[name.charCodeAt(0)%colors.length];
+}
+function timestamp(){return new Date().toLocaleTimeString('en-BD',{hour:'2-digit',minute:'2-digit'})+' '+new Date().toLocaleDateString('en-BD',{day:'2-digit',month:'short'})}
+
+// ── NAVIGATION ──
+function showPage(name,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  if(el)el.classList.add('active');
+  if(name==='fund'||name==='expenses'){refreshSelects();refreshChips()}
+  if(name==='settle'){renderSettle()}
+  if(name==='ledger'){renderLedger()}
+}
+
+// ── RECALC ──
+function recalc(){
+  members.forEach(m=>{m._contrib=0;m._spent=0});
+  contributions.forEach(c=>{
+    const m=members.find(x=>x.id===c.memberId);
+    if(m)m._contrib+=c.amount;
+  });
+  expenses.forEach(e=>{
+    const n=e.memberIds.length||1;
+    const ph=e.cost/n;
+    e.memberIds.forEach(mid=>{
+      const m=members.find(x=>x.id===mid);
+      if(m)m._spent+=ph;
+    });
+  });
+}
+function updateMetrics(){
+  recalc();
+  const tc=contributions.reduce((a,c)=>a+c.amount,0);
+  const ts=expenses.reduce((a,e)=>a+e.cost,0);
+  const bal=tc-ts;
+  document.getElementById('m-total').textContent=members.length;
+  document.getElementById('m-collected').textContent=fmt(tc);
+  document.getElementById('m-spent').textContent=fmt(ts);
+  const bEl=document.getElementById('m-balance');
+  bEl.textContent=fmt(bal);
+  bEl.className='metric-value '+(bal>=0?'green':'red');
+  document.getElementById('nb-members').textContent=members.length;
+  document.getElementById('nb-contribs').textContent=contributions.length;
+  document.getElementById('nb-expenses').textContent=expenses.length;
+}
+
+// ── MEMBERS ──
+function addMember(){
+  if(members.length>=250){alert('Maximum 250 members reached.');return}
+  const name=document.getElementById('m-name').value.trim();
+  const roll=document.getElementById('m-roll').value.trim()||String(members.length+1).padStart(3,'0');
+  const phone=document.getElementById('m-phone').value.trim();
+  if(!name){document.getElementById('m-name').focus();return}
+  if(members.find(m=>m.name.toLowerCase()===name.toLowerCase())){alert('A member with this name already exists.');return}
+  members.push({id:uid(),name,roll,phone,_contrib:0,_spent:0});
+  document.getElementById('m-name').value='';
+  document.getElementById('m-roll').value='';
+  document.getElementById('m-phone').value='';
+  document.getElementById('m-name').focus();
+  save();renderMembers();updateMetrics();
+}
+
+function removeMember(id){
+  if(!confirm('Remove this member?\n\nNote: Their contribution and expense records will remain.'))return;
+  members=members.filter(m=>m.id!==id);
+  save();renderMembers();updateMetrics();refreshSelects();refreshChips();
+}
+
+function filterMembers(){
+  const q=document.getElementById('member-search').value.toLowerCase();
+  document.querySelectorAll('#member-tbody tr[data-id]').forEach(row=>{
+    row.style.display=row.dataset.name.toLowerCase().includes(q)?'':'none';
+  });
+}
+
+function renderMembers(){
+  recalc();
+  const tbody=document.getElementById('member-tbody');
+  if(!members.length){
+    tbody.innerHTML='<tr><td colspan="8" class="table-empty">No members yet. Add your first member above.</td></tr>';
+    return;
+  }
+  tbody.innerHTML=members.map((m,i)=>{
+    const net=m._contrib-m._spent;
+    const netCls=net>0.5?'badge-green':net<-0.5?'badge-red':'badge-gray';
+    const sign=net>=0?'+':'';
+    const status=net>0.5?'🟢 Gets Back':net<-0.5?'🔴 Owes':'⚪ Settled';
+    return `<tr data-id="${m.id}" data-name="${m.name}">
+      <td class="text-mono text-muted">${m.roll}</td>
+      <td><div style="display:flex;align-items:center;gap:8px">
+        <div class="member-avatar" style="background:${avatarColor(m.name)}">${initials(m.name)}</div>
+        <div>
+          <div style="font-weight:500">${m.name}</div>
+          ${m.phone?`<div style="font-size:11px;color:var(--ink-4)">${m.phone}</div>`:''}
+        </div>
+      </div></td>
+      <td class="text-mono">${fmt(m._contrib)}</td>
+      <td class="text-mono">${fmt(m._spent)}</td>
+      <td class="text-mono"><span class="badge ${netCls}">${sign}${fmt(net)}</span></td>
+      <td style="font-size:12px">${status}</td>
+      <td><button class="btn btn-danger btn-xs" onclick="removeMember('${m.id}')">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── CONTRIBUTIONS ──
+function addContrib(){
+  const mid=document.getElementById('f-member').value;
+  const amt=parseFloat(document.getElementById('f-amount').value);
+  const note=document.getElementById('f-note').value.trim();
+  if(!mid){alert('Please select a member.');return}
+  if(!amt||amt<=0){alert('Please enter a valid amount.');return}
+  contributions.push({id:uid(),memberId:mid,amount:amt,note,time:timestamp()});
+  document.getElementById('f-amount').value='';
+  document.getElementById('f-note').value='';
+  save();renderContribs();updateMetrics();renderMembers();
+}
+function removeContrib(id){
+  contributions=contributions.filter(c=>c.id!==id);
+  save();renderContribs();updateMetrics();renderMembers();
+}
+function renderContribs(){
+  const tbody=document.getElementById('contrib-tbody');
+  if(!contributions.length){
+    tbody.innerHTML='<tr><td colspan="5" class="table-empty">No contributions recorded yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML=[...contributions].reverse().map(c=>{
+    const m=members.find(x=>x.id===c.memberId);
+    return `<tr>
+      <td><div style="display:flex;align-items:center;gap:8px">
+        ${m?`<div class="member-avatar" style="background:${avatarColor(m.name)};width:24px;height:24px;font-size:10px">${initials(m.name)}</div>`:''}
+        <span style="font-weight:500">${m?m.name:'(removed)'}</span>
+      </div></td>
+      <td class="text-mono" style="font-weight:500;color:var(--green)">${fmt(c.amount)}</td>
+      <td style="color:var(--ink-3)">${c.note||'—'}</td>
+      <td class="text-muted" style="font-size:12px">${c.time}</td>
+      <td><button class="btn btn-danger btn-xs" onclick="removeContrib('${c.id}')">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── EXPENSES ──
+function toggleSplitType(){
+  document.getElementById('subgroup-section').style.display=
+    document.getElementById('e-type').value==='sub'?'block':'none';
+}
+function toggleChip(id){
+  const el=document.getElementById('ec-'+id);
+  if(selectedChips.has(id)){selectedChips.delete(id);el.classList.remove('selected')}
+  else{selectedChips.add(id);el.classList.add('selected')}
+}
+function addExpense(){
+  const desc=document.getElementById('e-desc').value.trim();
+  const cat=document.getElementById('e-category').value;
+  const cost=parseFloat(document.getElementById('e-cost').value);
+  const type=document.getElementById('e-type').value;
+  if(!desc){alert('Please enter a description.');return}
+  if(!cost||cost<=0){alert('Please enter a valid cost.');return}
+  let memberIds=[];let label='';
+  if(type==='all'){
+    memberIds=members.map(m=>m.id);
+    label='All ('+members.length+')';
+    if(!members.length){alert('Add members first.');return}
+  } else {
+    memberIds=[...selectedChips];
+    label=document.getElementById('e-vehicle').value.trim()||'Subgroup';
+    if(!memberIds.length){alert('Select at least one member for this subgroup.');return}
+  }
+  const catMap={transport:'🚌',food:'🍽',hotel:'🏨',ticket:'🎟',misc:'📦'};
+  expenses.push({id:uid(),desc,cat,catIcon:catMap[cat],cost,type,label,memberIds,time:timestamp()});
+  document.getElementById('e-desc').value='';
+  document.getElementById('e-cost').value='';
+  document.getElementById('e-vehicle').value='';
+  selectedChips=new Set();
+  refreshChips();
+  save();renderExpenses();updateMetrics();renderMembers();
+}
+function removeExpense(id){
+  expenses=expenses.filter(e=>e.id!==id);
+  save();renderExpenses();updateMetrics();renderMembers();
+}
+function renderExpenses(){
+  const tbody=document.getElementById('expense-tbody');
+  if(!expenses.length){
+    tbody.innerHTML='<tr><td colspan="8" class="table-empty">No expenses added yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML=[...expenses].reverse().map((e,i)=>{
+    const ph=e.cost/(e.memberIds.length||1);
+    const names=e.memberIds.map(id=>{const m=members.find(x=>x.id===id);return m?m.name:'?'});
+    const preview=names.slice(0,3).join(', ')+(names.length>3?` +${names.length-3}`:'');
+    const typeBadge=e.type==='all'?'<span class="badge badge-blue">All Group</span>':`<span class="badge badge-gold">${e.label}</span>`;
+    return `<tr>
+      <td class="text-mono text-muted">${expenses.length-i}</td>
+      <td style="font-weight:500">${e.desc}</td>
+      <td>${e.catIcon} <span style="font-size:11px;color:var(--ink-3)">${e.cat}</span></td>
+      <td>${typeBadge}</td>
+      <td class="text-mono" style="font-weight:500">${fmt(e.cost)}</td>
+      <td class="text-mono" style="color:var(--ink-3)">${fmtDec(ph)}</td>
+      <td style="font-size:11px;color:var(--ink-4);max-width:150px" title="${names.join(', ')}">${preview}</td>
+      <td><button class="btn btn-danger btn-xs" onclick="removeExpense('${e.id}')">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── SETTLE ──
+function renderSettle(){
+  recalc();
+  const el=document.getElementById('settle-content');
+  if(!members.length){el.innerHTML='<div class="alert alert-info">Add members to see the settlement.</div>';return}
+  const tc=contributions.reduce((a,c)=>a+c.amount,0);
+  const ts=expenses.reduce((a,e)=>a+e.cost,0);
+  const bal=tc-ts;
+  const tourName=document.getElementById('tour-name').value||'Tour';
+
+  const creditors=members.filter(m=>m._contrib-m._spent>0.5).map(m=>({...m,net:m._contrib-m._spent,rem:m._contrib-m._spent}));
+  const debtors=members.filter(m=>m._spent-m._contrib>0.5).map(m=>({...m,net:m._spent-m._contrib,rem:m._spent-m._contrib}));
+  const settled=members.filter(m=>Math.abs(m._contrib-m._spent)<=0.5);
+
+  let html=`
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.25rem">
+    <div class="card" style="margin:0"><div class="card-body" style="text-align:center">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-4);font-family:'DM Mono',monospace;margin-bottom:6px">Fund Collected</div>
+      <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:600;color:var(--green)">${fmt(tc)}</div>
+    </div></div>
+    <div class="card" style="margin:0"><div class="card-body" style="text-align:center">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-4);font-family:'DM Mono',monospace;margin-bottom:6px">Total Expenses</div>
+      <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:600;color:var(--red)">${fmt(ts)}</div>
+    </div></div>
+    <div class="card" style="margin:0"><div class="card-body" style="text-align:center">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-4);font-family:'DM Mono',monospace;margin-bottom:6px">Remaining Balance</div>
+      <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:600;color:${bal>=0?'var(--green)':'var(--red)'}">${fmt(bal)}</div>
+    </div></div>
+  </div>`;
+
+  if(bal>0.5) html+=`<div class="alert alert-success">✓ ${fmt(bal)} remains in the central fund after all expenses. This can be refunded proportionally or kept as reserve.</div>`;
+  else if(bal<-0.5) html+=`<div class="alert alert-danger">⚠ Fund is short by ${fmt(Math.abs(bal))}. Collect more contributions or remove expenses.</div>`;
+  else html+=`<div class="alert alert-success">✓ The fund is perfectly balanced.</div>`;
+
+  html+=`<div class="settle-grid">`;
+
+  // Gets money back
+  html+=`<div class="settle-card">
+    <h3>🟢 Gets Money Back (${creditors.length})</h3>`;
+  if(!creditors.length) html+=`<p style="font-size:12px;color:var(--ink-4);font-style:italic">No one gets money back yet.</p>`;
+  else creditors.forEach(m=>{
+    html+=`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px dashed var(--paper-3)">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="member-avatar" style="background:${avatarColor(m.name)};width:26px;height:26px;font-size:10px">${initials(m.name)}</div>
+        <span style="font-size:13px;font-weight:500">${m.name}</span>
+      </div>
+      <span class="badge badge-green">+${fmt(m.net)}</span>
+    </div>`;
+  });
+  html+=`</div>`;
+
+  // Owes money
+  html+=`<div class="settle-card">
+    <h3>🔴 Owes More Money (${debtors.length})</h3>`;
+  if(!debtors.length) html+=`<p style="font-size:12px;color:var(--ink-4);font-style:italic">No one owes more money.</p>`;
+  else debtors.forEach(m=>{
+    html+=`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px dashed var(--paper-3)">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="member-avatar" style="background:${avatarColor(m.name)};width:26px;height:26px;font-size:10px">${initials(m.name)}</div>
+        <span style="font-size:13px;font-weight:500">${m.name}</span>
+      </div>
+      <span class="badge badge-red">-${fmt(m.net)}</span>
+    </div>`;
+  });
+  html+=`</div></div>`;
+
+  // Transfer instructions
+  if(debtors.length&&creditors.length){
+    const cred=[...creditors.map(c=>({...c,rem:c.net}))];
+    const debt=[...debtors.map(d=>({...d,rem:d.net}))];
+    let txns=[];let ci=0,di=0;
+    while(ci<cred.length&&di<debt.length){
+      const amt=Math.min(cred[ci].rem,debt[di].rem);
+      if(amt>0.01) txns.push({from:debt[di].name,to:cred[ci].name,amt});
+      cred[ci].rem-=amt;debt[di].rem-=amt;
+      if(cred[ci].rem<0.01)ci++;
+      if(debt[di].rem<0.01)di++;
+    }
+    html+=`<div class="card"><div class="card-header"><div class="card-title">⚡ Transfer Instructions (via Central Account)</div></div><div class="card-body">
+    <div class="alert alert-info" style="margin-bottom:1rem">All transfers go through the central fund account. Debtors pay INTO the account; account then pays OUT to creditors.</div>`;
+    txns.forEach(t=>{
+      html+=`<div class="transfer-item">
+        <span class="badge badge-red">${t.from}</span>
+        <span class="transfer-arrow">→</span>
+        <span style="font-size:12px;color:var(--ink-4)">Central Fund</span>
+        <span class="transfer-arrow">→</span>
+        <span class="badge badge-green">${t.to}</span>
+        <span class="transfer-amount">${fmt(t.amt)}</span>
+      </div>`;
+    });
+    html+=`</div></div>`;
+  }
+
+  // Full member table
+  html+=`<div class="card"><div class="card-header"><div class="card-title">📋 All Members Settlement</div></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Member</th><th>Contributed</th><th>Share Spent</th><th>Net</th><th>Action Required</th></tr></thead>
+    <tbody>`;
+  members.forEach(m=>{
+    const net=m._contrib-m._spent;
+    const cls=net>0.5?'badge-green':net<-0.5?'badge-red':'badge-gray';
+    const action=net>0.5?`Receive ${fmt(net)} from central fund`:net<-0.5?`Pay ${fmt(Math.abs(net))} to central fund`:'No action — settled';
+    html+=`<tr>
+      <td><div style="display:flex;align-items:center;gap:8px">
+        <div class="member-avatar" style="background:${avatarColor(m.name)};width:26px;height:26px;font-size:10px">${initials(m.name)}</div>
+        ${m.name}
+      </div></td>
+      <td class="text-mono">${fmt(m._contrib)}</td>
+      <td class="text-mono">${fmt(m._spent)}</td>
+      <td><span class="badge ${cls}">${net>=0?'+':''}${fmt(net)}</span></td>
+      <td style="font-size:12px;color:var(--ink-3)">${action}</td>
+    </tr>`;
+  });
+  html+=`</tbody></table></div></div>`;
+  el.innerHTML=html;
+}
+
+// ── LEDGER ──
+function renderLedger(){
+  recalc();
+  const el=document.getElementById('ledger-content');
+  const tourName=document.getElementById('tour-name').value||'Tour';
+  const tc=contributions.reduce((a,c)=>a+c.amount,0);
+  const ts=expenses.reduce((a,e)=>a+e.cost,0);
+  let html=`
+  <div class="card">
+    <div class="card-header"><div class="card-title">📋 Contribution Ledger (${contributions.length} entries)</div></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>#</th><th>Member</th><th>Amount</th><th>Note</th><th>Time</th></tr></thead>
+      <tbody>`;
+  if(!contributions.length) html+=`<tr><td colspan="5" class="table-empty">No contributions.</td></tr>`;
+  contributions.forEach((c,i)=>{
+    const m=members.find(x=>x.id===c.memberId);
+    html+=`<tr><td class="text-mono text-muted">${i+1}</td><td>${m?m.name:'(removed)'}</td><td class="text-mono" style="color:var(--green)">${fmt(c.amount)}</td><td>${c.note||'—'}</td><td style="font-size:11px;color:var(--ink-4)">${c.time}</td></tr>`;
+  });
+  html+=`<tr style="background:var(--paper-2)"><td colspan="2" style="font-weight:500;font-family:'DM Mono',monospace;font-size:12px">TOTAL</td><td class="text-mono" style="font-weight:500;color:var(--green)">${fmt(tc)}</td><td colspan="2"></td></tr>`;
+  html+=`</tbody></table></div></div>`;
+
+  html+=`<div class="card">
+    <div class="card-header"><div class="card-title">🧾 Expense Ledger (${expenses.length} entries)</div></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>#</th><th>Description</th><th>Category</th><th>Split</th><th>Total</th><th>Per Head</th><th>Members</th><th>Time</th></tr></thead>
+      <tbody>`;
+  if(!expenses.length) html+=`<tr><td colspan="8" class="table-empty">No expenses.</td></tr>`;
+  expenses.forEach((e,i)=>{
+    const ph=e.cost/(e.memberIds.length||1);
+    const names=e.memberIds.map(id=>{const m=members.find(x=>x.id===id);return m?m.name:'?'}).join(', ');
+    html+=`<tr><td class="text-mono text-muted">${i+1}</td><td>${e.desc}</td><td>${e.catIcon} ${e.cat}</td>
+      <td>${e.type==='all'?'<span class="badge badge-blue">All</span>':`<span class="badge badge-gold">${e.label}</span>`}</td>
+      <td class="text-mono" style="color:var(--red)">${fmt(e.cost)}</td>
+      <td class="text-mono">${fmtDec(ph)}</td>
+      <td style="font-size:11px;color:var(--ink-4);max-width:160px">${names}</td>
+      <td style="font-size:11px;color:var(--ink-4)">${e.time}</td></tr>`;
+  });
+  html+=`<tr style="background:var(--paper-2)"><td colspan="4" style="font-weight:500;font-family:'DM Mono',monospace;font-size:12px">TOTAL</td><td class="text-mono" style="font-weight:500;color:var(--red)">${fmt(ts)}</td><td colspan="3"></td></tr>`;
+  html+=`</tbody></table></div></div>`;
+  el.innerHTML=html;
+}
+
+// ── REFRESH SELECTS & CHIPS ──
+function refreshSelects(){
+  const opts=members.map(m=>`<option value="${m.id}">${m.name} (${m.roll})</option>`).join('');
+  document.getElementById('f-member').innerHTML='<option value="">— Select member —</option>'+opts;
+}
+function refreshChips(){
+  selectedChips=new Set();
+  const wrap=document.getElementById('expense-chips');
+  if(!members.length){wrap.innerHTML='<span style="font-size:12px;color:var(--ink-4);font-style:italic">Add members first</span>';return}
+  wrap.innerHTML=members.map(m=>`<span class="chip" id="ec-${m.id}" onclick="toggleChip('${m.id}')">${m.name}</span>`).join('');
+}
+
+// ── EXPORT / IMPORT ──
+function exportJSON(){
+  const data={tourName:document.getElementById('tour-name').value,members,contributions,expenses,exportedAt:new Date().toISOString()};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=(document.getElementById('tour-name').value||'tour').replace(/\s+/g,'_')+'_ledger.json';
+  a.click();
+}
+function importJSON(){document.getElementById('import-file').click()}
+function handleImport(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const data=JSON.parse(ev.target.result);
+      if(!confirm(`Import "${data.tourName||'tour'}" data?\nThis will REPLACE your current data.`))return;
+      members=data.members||[];
+      contributions=data.contributions||[];
+      expenses=data.expenses||[];
+      if(data.tourName)document.getElementById('tour-name').value=data.tourName;
+      save();renderAll();alert('Data imported successfully!');
+    }catch(err){alert('Invalid file. Please use a TourLedger .json export.')}
+  };
+  reader.readAsText(file);
+  e.target.value='';
+}
+function clearAll(){
+  if(!confirm('Reset ALL data?\n\nThis cannot be undone.'))return;
+  members=[];contributions=[];expenses=[];
+  localStorage.clear();
+  renderAll();
+  alert('All data cleared.');
+}
+function printReport(){
+  renderLedger();renderSettle();
+  window.print();
+}
+
+function renderAll(){
+  renderMembers();renderContribs();renderExpenses();updateMetrics();refreshSelects();refreshChips();
+}
+
+// ── INIT ──
+load();renderAll();
+</script>
+</body>
+</html>
